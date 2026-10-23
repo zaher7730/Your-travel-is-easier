@@ -1,0 +1,39 @@
+export function createStore(initialState) {
+  let state = structuredClone(initialState);
+
+  function save() {
+    localStorage.setItem('travel-admin-state', JSON.stringify(state));
+  }
+
+  function getState() {
+    return structuredClone(state);
+  }
+
+  function update(key, value) {
+    state[key] = value;
+    save();
+  }
+
+  function addLog(message) {
+    state.logs.unshift({
+      id: Date.now(),
+      message,
+      createdAt: new Date().toISOString(),
+    });
+    save();
+  }
+
+  return { getState, update, addLog };
+}
+
+export function safeLoadState(initialData) {
+  try {
+    const saved = localStorage.getItem('travel-admin-state');
+    if (!saved) return initialData;
+
+    const parsed = JSON.parse(saved);
+    return { ...initialData, ...parsed };
+  } catch (error) {
+    return initialData;
+  }
+}
